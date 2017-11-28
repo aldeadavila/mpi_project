@@ -10,6 +10,13 @@
 #include <stdio.h>
 #include <string.h>
 #include "mpi.h"
+#include <math.h>
+
+#define PI 3.14159265
+
+float  getSin(float dato) {
+		return sin(dato);
+}
 
 int main(int argc, char* argv[]){
 	int  my_rank; /* rank of process */
@@ -18,6 +25,9 @@ int main(int argc, char* argv[]){
 	int dest;     /* rank of receiver */
 	int tag=0;    /* tag for messages */
 	char message[100];        /* storage for message */
+
+
+
 	MPI_Status status ;   /* return status for receive */
 	
 	/* start up MPI */
@@ -31,25 +41,34 @@ int main(int argc, char* argv[]){
 	MPI_Comm_size(MPI_COMM_WORLD, &p); 
 	
 	
-	if (my_rank !=0){
-		/* create message */
-		sprintf(message, "Hello MPI World from process %d!", my_rank);
-		dest = 0;
-		/* use strlen+1 so that '\0' get transmitted */
-		MPI_Send(message, strlen(message)+1, MPI_CHAR,
-		   dest, tag, MPI_COMM_WORLD);
+	if (my_rank ==0){
+
+
+		printf ("seno: %f\n",getSin(5.6));
+
+				printf("%d\n",my_rank);
+				printf("Hello MPI World From process 0: Num processes: %d\n",p);
+				for (source = 1; source < p; source++) {
+					MPI_Recv(message, 100, MPI_CHAR, source, tag,
+					      MPI_COMM_WORLD, &status);
+					printf("%s\n",message);
+				}
+
+
+
 	}
 	else{
-		printf("Hello MPI World From process 0: Num processes: %d\n",p);
-		for (source = 1; source < p; source++) {
-			MPI_Recv(message, 100, MPI_CHAR, source, tag,
-			      MPI_COMM_WORLD, &status);
-			printf("%s\n",message);
-		}
+		/* create message */
+				sprintf(message, "Hello MPI World from process %d!", my_rank);
+				dest = 0;
+				/* use strlen+1 so that '\0' get transmitted */
+				MPI_Send(message, strlen(message)+1, MPI_CHAR,
+				   dest, tag, MPI_COMM_WORLD);
+
+
 	}
 	/* shut down MPI */
-	MPI_Finalize(); 
-	
-	
+	MPI_Finalize();
+
 	return 0;
 }
