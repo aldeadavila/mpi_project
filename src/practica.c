@@ -8,6 +8,7 @@
  ============================================================================
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "mpi.h"
 #include <math.h>
@@ -19,12 +20,26 @@ float  getSin(float dato) {
 }
 
 int main(int argc, char* argv[]){
+
+	//dimensión del array pasado por parámetro
+	int width_maze = strtol(argv[1], NULL, 10);
+	// string to long(string, endptr, base)
+
+	//Nuestro tablero de juego
+	float maze[width_maze][width_maze];
+
+	//Random
+	time_t t;
+
+
+
 	int  my_rank; /* rank of process */
 	int  p;       /* number of processes */
 	int source;   /* rank of sender */
 	int dest;     /* rank of receiver */
 	int tag=0;    /* tag for messages */
 	char message[100];        /* storage for message */
+	int i,j;
 
 
 
@@ -43,10 +58,30 @@ int main(int argc, char* argv[]){
 	
 	if (my_rank ==0){
 
+		/* Intializes random number generator */
+		srand((unsigned) time(&t));
+
+		//variables para el primer caso
+		int x1 = rand() % 100;
+		int y1 = rand() % 100;
+
+		/* Print random numbers from 0 to 100 */
+		printf("Aleatorio: %d\n", rand() % 100);
+		printf("[%d,%d]=%f \n", x1,y1, maze[x1][y1]);
 
 		printf ("seno: %f\n",getSin(5.6));
 
-				printf("%d\n",my_rank);
+		//inicializamos el tablero
+		for (i=0; i<width_maze; i++) {
+			for (j=0; j<width_maze; j++) {
+				maze[i][j] = 0.0;
+			//	printf("[%d,%d]=%f ", i,j, maze[i][j]);
+			}
+		//	printf("\n");
+		}
+
+
+
 				printf("Hello MPI World From process 0: Num processes: %d\n",p);
 				for (source = 1; source < p; source++) {
 					MPI_Recv(message, 100, MPI_CHAR, source, tag,
