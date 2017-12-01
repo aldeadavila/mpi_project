@@ -31,7 +31,8 @@ int main(int argc, char* argv[]){
 	//Random
 	time_t t;
 
-
+	//Creamos nuestro archivo
+	FILE *file;
 
 	int  my_rank; /* rank of process */
 	int  p;       /* number of processes */
@@ -40,8 +41,6 @@ int main(int argc, char* argv[]){
 	int tag=0;    /* tag for messages */
 	char message[100];        /* storage for message */
 	int i,j;
-
-
 
 	MPI_Status status ;   /* return status for receive */
 	
@@ -57,6 +56,15 @@ int main(int argc, char* argv[]){
 	
 	
 	if (my_rank ==0){
+
+	    /*  open for writing */
+
+		file = fopen("~/data_gnuplot", "rb+");
+
+	    if (file == NULL) {
+	        printf("File does not exists \n");
+	  //      file = fopen("~/data_gnuplot", "wb");
+	    }
 
 		/* Intializes random number generator */
 		srand((unsigned) time(&t));
@@ -75,33 +83,32 @@ int main(int argc, char* argv[]){
 		for (i=0; i<width_maze; i++) {
 			for (j=0; j<width_maze; j++) {
 				maze[i][j] = 0.0;
-			//	printf("[%d,%d]=%f ", i,j, maze[i][j]);
+	//		    fprintf(file, "[%d,%d]=%f ", i,j, maze[i][j]);
+				printf("[%d,%d]=%f ", i,j, maze[i][j]);
 			}
-		//	printf("\n");
+		//	fprintf(file, "\n");
+			printf("\n");
 		}
 
+		//fclose(file);
 
-
-				printf("Hello MPI World From process 0: Num processes: %d\n",p);
-				for (source = 1; source < p; source++) {
-					MPI_Recv(message, 100, MPI_CHAR, source, tag,
-					      MPI_COMM_WORLD, &status);
-					printf("%s\n",message);
-				}
-
-
+		printf("Hello MPI World From process 0: Num processes: %d\n",p);
+		for (source = 1; source < p; source++) {
+			MPI_Recv(message, 100, MPI_CHAR, source, tag,
+				  MPI_COMM_WORLD, &status);
+			printf("%s\n",message);
+		}
 
 	}
 	else{
 		/* create message */
-				sprintf(message, "Hello MPI World from process %d!", my_rank);
-				dest = 0;
-				/* use strlen+1 so that '\0' get transmitted */
-				MPI_Send(message, strlen(message)+1, MPI_CHAR,
-				   dest, tag, MPI_COMM_WORLD);
-
-
+		sprintf(message, "Hello MPI World from process %d!", my_rank);
+		dest = 0;
+		/* use strlen+1 so that '\0' get transmitted */
+		MPI_Send(message, strlen(message)+1, MPI_CHAR,
+		   dest, tag, MPI_COMM_WORLD);
 	}
+
 	/* shut down MPI */
 	MPI_Finalize();
 
